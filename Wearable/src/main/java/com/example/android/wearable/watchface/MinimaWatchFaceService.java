@@ -252,7 +252,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float centerX = width / 2f;
             float centerY = height / 2f;
 
-            // Draw the ticks.
+            // Draw the ticks. TODO: refactor the for loop to contain less lines
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 10;
             float outerTickRadius = centerX;
@@ -280,12 +280,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float secRot = seconds / 60f * TWO_PI;
             float minutes = mCalendar.get(Calendar.MINUTE) + seconds / 60f;
             float minRot = minutes / 60f * TWO_PI;
-            float hours = mCalendar.get(Calendar.HOUR) + minutes / 60f;
-            float hrRot = hours / 12f * TWO_PI;
 
             float secLength = centerX - 20;
-            float minLength = centerX - 40;
-            float hrLength = centerX - 80;
+            float minLength = centerX; // full length
 
             if (!isInAmbientMode()) {
                 float secX = (float) Math.sin(secRot) * secLength;
@@ -296,10 +293,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float minX = (float) Math.sin(minRot) * minLength;
             float minY = (float) -Math.cos(minRot) * minLength;
             canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
-
-            float hrX = (float) Math.sin(hrRot) * hrLength;
-            float hrY = (float) -Math.cos(hrRot) * hrLength;
-            canvas.drawLine(centerX, centerY, centerX + hrX, centerY + hrY, mHourPaint);
         }
 
         @Override
