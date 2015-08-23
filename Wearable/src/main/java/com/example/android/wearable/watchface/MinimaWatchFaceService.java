@@ -75,11 +75,11 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         Paint mSecondPaint;
         Paint mTickPaint;
         Paint mLargeTickPaint;
+        Paint mFadePaint;
         boolean mMute;
         Calendar mCalendar;
 
-        float mHourXOffset;
-        float mHourYOffset;
+        float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
 
         /**
@@ -140,7 +140,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             Drawable backgroundDrawable = resources.getDrawable(R.drawable.bg, null /* theme */);
             mBackgroundBitmap = ((BitmapDrawable) backgroundDrawable).getBitmap();
 
-            mHourYOffset = resources.getDimension(R.dimen.hour_y_offset);
+            startAngle = 270;
 
             mHourPaint = createTextPaint(mHourDigitsColor, NORMAL_TYPEFACE);
             mHourPaint.setTextAlign(Paint.Align.CENTER);
@@ -167,6 +167,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mLargeTickPaint.setStrokeWidth(3f);
             mLargeTickPaint.setAntiAlias(true);
 
+            mFadePaint = new Paint();
+            mFadePaint.setARGB(180, 0, 0, 0);
+            mFadePaint.setStrokeWidth(4f);
+            mFadePaint.setAntiAlias(true);
+            mFadePaint.setStyle(Paint.Style.FILL);
+
             mCalendar = Calendar.getInstance();
         }
 
@@ -189,7 +195,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             Resources resources = MinimaWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
 
-            mHourXOffset = resources.getDimension(isRound ? R.dimen.hour_x_offset_round : R.dimen.hour_x_offset);
             float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             mHourPaint.setTextSize(textSize);
@@ -282,6 +287,38 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float centerX = width / 2f;
             float centerY = height / 2f;
 
+            float seconds =
+                    mCalendar.get(Calendar.SECOND) + mCalendar.get(Calendar.MILLISECOND) / 1000f;
+            float secRot = seconds / 60f * TWO_PI;
+            float minutes = mCalendar.get(Calendar.MINUTE) + seconds / 60f;
+            float minRot = minutes / 60f * TWO_PI;
+            int hour = mCalendar.get(Calendar.HOUR);
+            if (hour == 0) {
+                hour = 12;
+            }
+            String hourString = String.valueOf(hour);
+
+            float secLength = centerX - 20;
+            float minLength = centerX; // full length
+
+            if (!isInAmbientMode()) {
+                float secX = (float) Math.sin(secRot) * secLength;
+                float secY = (float) -Math.cos(secRot) * secLength;
+                canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
+            }
+
+            // Draw hour text
+            canvas.drawText(hourString, centerX, centerY - (mHourPaint.descent() + mHourPaint.ascent()) / 2, mHourPaint);
+
+            // Draw minute hand
+            float minX = (float) Math.sin(minRot) * minLength;
+            float minY = (float) -Math.cos(minRot) * minLength;
+            canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
+
+            // Draw overlay
+            canvas.drawArc(0, 0, width, height, startAngle,
+                    (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint); // angles are in degrees
+
             // Draw the ticks. TODO: refactor the for loop to contain less lines
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 10;
@@ -304,34 +341,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                             centerX + outerX, centerY + outerY, mLargeTickPaint);
                 }
             }
-
-            float seconds =
-                    mCalendar.get(Calendar.SECOND) + mCalendar.get(Calendar.MILLISECOND) / 1000f;
-            float secRot = seconds / 60f * TWO_PI;
-            float minutes = mCalendar.get(Calendar.MINUTE) + seconds / 60f;
-            float minRot = minutes / 60f * TWO_PI;
-            int hour = mCalendar.get(Calendar.HOUR);
-            if (hour == 0) {
-                hour = 12;
-            }
-            String hourString = String.valueOf(hour);
-
-            float secLength = centerX - 20;
-            float minLength = centerX; // full length
-
-            if (!isInAmbientMode()) {
-                float secX = (float) Math.sin(secRot) * secLength;
-                float secY = (float) -Math.cos(secRot) * secLength;
-                canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
-            }
-
-            // Draw minute hand
-            float minX = (float) Math.sin(minRot) * minLength;
-            float minY = (float) -Math.cos(minRot) * minLength;
-            canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
-
-            // Draw hour text
-            canvas.drawText(hourString, centerX, centerY - (mHourPaint.descent() + mHourPaint.ascent()) / 2, mHourPaint);
         }
 
         @Override
