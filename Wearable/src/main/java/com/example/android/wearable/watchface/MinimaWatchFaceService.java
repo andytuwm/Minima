@@ -154,7 +154,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             mSecondPaint = new Paint();
             mSecondPaint.setARGB(255, 255, 0, 0);
-            mSecondPaint.setStrokeWidth(2.f);
+            mSecondPaint.setStrokeWidth(4.f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
 
@@ -302,13 +302,18 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                     (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint);
             // angles are in degrees: 6 comes from MIN * (2PI / 60) * (180 / PI)
 
+            // Accent Line
             if (!isInAmbientMode()) {
-                float seconds = 4;
-                float secRot = seconds / 60f * TWO_PI;
-                float secLength = centerX - 20;
-                float secX = (float) Math.sin(secRot) * secLength;
-                float secY = (float) -Math.cos(secRot) * secLength;
-                canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
+                int h = mCalendar.get(Calendar.HOUR);
+                if (h == 7) {
+                    float secRot = TWO_PI / 15f;
+                    float secLength = centerX - 20;
+                    float secX = (float) Math.sin(secRot) * secLength;
+                    float secY = (float) -Math.cos(secRot) * secLength;
+                    canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
+                } else if (h == 9) {
+
+                }
             }
 
             // Draw minute hand
