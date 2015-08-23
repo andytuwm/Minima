@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -76,11 +77,15 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         Paint mTickPaint;
         Paint mLargeTickPaint;
         Paint mFadePaint;
+        Paint mDayPaint;
         boolean mMute;
         Calendar mCalendar;
 
         float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
+        int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
+
+        Path mAccentPath9 = new Path();
 
         /**
          * Handler to update the time once a second in interactive mode.
@@ -157,6 +162,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mSecondPaint.setStrokeWidth(4.f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
+            mSecondPaint.setStyle(Paint.Style.STROKE);
 
             mTickPaint = new Paint();
             mTickPaint.setARGB(100, 255, 255, 255);
@@ -312,7 +318,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                     float secY = (float) -Math.cos(secRot) * secLength;
                     canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
                 } else if (h == 9) {
-
+                    mAccentPath9.moveTo(163, 72);
+                    mAccentPath9.cubicTo(180, 74, 200, 82, 204, 125);
+                    canvas.drawPath(mAccentPath9, mSecondPaint);
                 }
             }
 
