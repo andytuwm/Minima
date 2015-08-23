@@ -151,6 +151,8 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setTextAlign(Paint.Align.CENTER);
             mHourPaint.setLetterSpacing(-0.15f);
 
+            mDayPaint = createTextPaint(mDayDigitsColor, NORMAL_TYPEFACE);
+
             mMinutePaint = new Paint();
             mMinutePaint.setARGB(255, 200, 200, 200);
             mMinutePaint.setStrokeWidth(6f);
@@ -202,9 +204,11 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             Resources resources = MinimaWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
 
-            float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
+            float hourTextSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
+            float dayTextSize = resources.getDimension(R.dimen.digital_date_text_size);
 
-            mHourPaint.setTextSize(textSize);
+            mHourPaint.setTextSize(hourTextSize);
+            mDayPaint.setTextSize(dayTextSize);
         }
 
         @Override
@@ -334,6 +338,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
                 canvas.drawCircle(centerX, centerY, 7, mMinutePaint);
             }
+
+            // Draw date text
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 40, 220, mDayPaint);
 
             // Draw the ticks.
             float innerTickRadius = centerX - 15;
