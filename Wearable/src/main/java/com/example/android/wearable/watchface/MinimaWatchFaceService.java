@@ -317,29 +317,27 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             // Draw overlay
             canvas.drawArc(0, 0, width, height, startAngle,
-                    (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint); // angles are in degrees
+                    (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint);
+            // angles are in degrees: 6 comes from MIN * (2PI / 60) * (180 / PI)
 
-            // Draw the ticks. TODO: refactor the for loop to contain less lines
+            // Draw the ticks.
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 10;
             float outerTickRadius = centerX;
             for (int tickIndex = 1; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
-                if (tickIndex % 5 != 0) {
-                    float innerX = (float) Math.sin(tickRot) * innerTickRadius;
-                    float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
-                    float outerX = (float) Math.sin(tickRot) * outerTickRadius;
-                    float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
-                    canvas.drawLine(centerX + innerX, centerY + innerY,
-                            centerX + outerX, centerY + outerY, mTickPaint);
-                } else {
-                    float innerX = (float) Math.sin(tickRot) * innerLargeTickRadius;
-                    float innerY = (float) -Math.cos(tickRot) * innerLargeTickRadius;
-                    float outerX = (float) Math.sin(tickRot) * outerTickRadius;
-                    float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
-                    canvas.drawLine(centerX + innerX, centerY + innerY,
-                            centerX + outerX, centerY + outerY, mLargeTickPaint);
+                float tickRadius = innerTickRadius;
+                Paint tickPaint = mTickPaint;
+                if (tickIndex % 5 == 0) {
+                    tickRadius = innerLargeTickRadius;
+                    tickPaint = mLargeTickPaint;
                 }
+                float innerX = (float) Math.sin(tickRot) * tickRadius;
+                float innerY = (float) -Math.cos(tickRot) * tickRadius;
+                float outerX = (float) Math.sin(tickRot) * outerTickRadius;
+                float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
+                canvas.drawLine(centerX + innerX, centerY + innerY,
+                        centerX + outerX, centerY + outerY, tickPaint);
             }
         }
 
