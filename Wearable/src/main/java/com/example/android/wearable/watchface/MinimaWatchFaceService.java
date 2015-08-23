@@ -225,6 +225,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
             }
+
+            mHourPaint.setAlpha(inAmbientMode ? 185 : 255);
+
             if (mLowBitAmbient) {
                 boolean antiAlias = !inAmbientMode;
                 mHourPaint.setAntiAlias(antiAlias);
@@ -283,7 +286,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 10;
             float outerTickRadius = centerX;
-            for (int tickIndex = 0; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
+            for (int tickIndex = 1; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
                 if (tickIndex % 5 != 0) {
                     float innerX = (float) Math.sin(tickRot) * innerTickRadius;
