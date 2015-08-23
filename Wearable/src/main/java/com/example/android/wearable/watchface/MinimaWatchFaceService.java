@@ -290,7 +290,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float seconds =
                     mCalendar.get(Calendar.SECOND) + mCalendar.get(Calendar.MILLISECOND) / 1000f;
             float secRot = seconds / 60f * TWO_PI;
-            float minutes = mCalendar.get(Calendar.MINUTE) + seconds / 60f;
+            float minutes = mCalendar.get(Calendar.MINUTE);
             float minRot = minutes / 60f * TWO_PI;
             int hour = mCalendar.get(Calendar.HOUR);
             if (hour == 0) {
@@ -311,9 +311,11 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText(hourString, centerX, centerY - (mHourPaint.descent() + mHourPaint.ascent()) / 2, mHourPaint);
 
             // Draw minute hand
-            float minX = (float) Math.sin(minRot) * minLength;
-            float minY = (float) -Math.cos(minRot) * minLength;
-            canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
+            if (mCalendar.get(Calendar.MINUTE) != 0) {
+                float minX = (float) Math.sin(minRot) * minLength;
+                float minY = (float) -Math.cos(minRot) * minLength;
+                canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
+            }
 
             // Draw overlay
             canvas.drawArc(0, 0, width, height, startAngle,
