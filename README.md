@@ -1,11 +1,11 @@
 
-Android Wear WatchFace
+Minima - Android Wear Watch Face
 ===================================
 
 A minimal watch face inspired by [Layton Diament's "Vanishing Hour" Concept](https://plus.google.com/u/0/photos/+Motorola/albums/6025927350868561553/6025927408327668498?pid=6025927408327668498&oid=113884566566424587799)
 from Motorola Mobility's 2014 Watch Face Contest.
 
-![Minima Watch Face](/screenshots/screen_framed.png)
+![alt text](/screenshots/screen_framed.png "Minima Watch Face")
 
 Pre-requisites
 --------------
