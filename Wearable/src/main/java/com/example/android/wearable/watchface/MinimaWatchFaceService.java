@@ -36,15 +36,14 @@ import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.view.WindowInsets;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Sample analog watch face with a ticking second hand. In ambient mode, the second hand isn't
- * shown. On devices with low-bit ambient mode, the hands are drawn without anti-aliasing in ambient
- * mode. The watch face is drawn with less contrast in mute mode.
+ * Minima watch face - combines the classic analog look with the modern digital clock.
  * <p/>
  */
 public class MinimaWatchFaceService extends CanvasWatchFaceService {
@@ -59,7 +58,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
     private static final Typeface BOLD_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
     private static final Typeface NORMAL_TYPEFACE =
-            Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+            Typeface.create("sans-serif-thin", Typeface.NORMAL);
 
     @Override
     public Engine onCreateEngine() {
@@ -78,6 +77,10 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         Paint mLargeTickPaint;
         boolean mMute;
         Calendar mCalendar;
+
+        float mHourXOffset;
+        float mHourYOffset;
+        int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
 
         /**
          * Handler to update the time once a second in interactive mode.
@@ -137,11 +140,10 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             Drawable backgroundDrawable = resources.getDrawable(R.drawable.bg, null /* theme */);
             mBackgroundBitmap = ((BitmapDrawable) backgroundDrawable).getBitmap();
 
-            mHourPaint = new Paint();
-            mHourPaint.setARGB(255, 200, 200, 200);
-            mHourPaint.setStrokeWidth(5.f);
-            mHourPaint.setAntiAlias(true);
-            mHourPaint.setStrokeCap(Paint.Cap.ROUND);
+            mHourYOffset = resources.getDimension(R.dimen.hour_y_offset);
+
+            mHourPaint = createTextPaint(mHourDigitsColor, NORMAL_TYPEFACE);
+            mHourPaint.setTextAlign(Paint.Align.CENTER);
 
             mMinutePaint = new Paint();
             mMinutePaint.setARGB(255, 200, 200, 200);
@@ -166,6 +168,31 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mLargeTickPaint.setAntiAlias(true);
 
             mCalendar = Calendar.getInstance();
+        }
+
+        private Paint createTextPaint(int color, Typeface typeface) {
+            Paint paint = new Paint();
+            paint.setColor(color);
+            paint.setTypeface(typeface);
+            paint.setAntiAlias(true);
+            return paint;
+        }
+
+        @Override
+        public void onApplyWindowInsets(WindowInsets insets) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onApplyWindowInsets: " + (insets.isRound() ? "round" : "square"));
+            }
+            super.onApplyWindowInsets(insets);
+
+            // Load resources that have alternate values for round watches.
+            Resources resources = MinimaWatchFaceService.this.getResources();
+            boolean isRound = insets.isRound();
+
+            mHourXOffset = resources.getDimension(isRound ? R.dimen.hour_x_offset_round : R.dimen.hour_x_offset);
+            float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
+
+            mHourPaint.setTextSize(textSize);
         }
 
         @Override
@@ -256,7 +283,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 10;
             float outerTickRadius = centerX;
-            for (int tickIndex = 0; tickIndex <  mCalendar.get(Calendar.MINUTE); tickIndex++) {
+            for (int tickIndex = 0; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
                 if (tickIndex % 5 != 0) {
                     float innerX = (float) Math.sin(tickRot) * innerTickRadius;
@@ -280,6 +307,11 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             float secRot = seconds / 60f * TWO_PI;
             float minutes = mCalendar.get(Calendar.MINUTE) + seconds / 60f;
             float minRot = minutes / 60f * TWO_PI;
+            int hour = mCalendar.get(Calendar.HOUR);
+            if (hour == 0) {
+                hour = 12;
+            }
+            String hourString = String.valueOf(hour);
 
             float secLength = centerX - 20;
             float minLength = centerX; // full length
@@ -290,9 +322,13 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
             }
 
+            // Draw minute hand
             float minX = (float) Math.sin(minRot) * minLength;
             float minY = (float) -Math.cos(minRot) * minLength;
             canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mMinutePaint);
+
+            // Draw hour text
+            canvas.drawText(hourString, centerX, centerY - (mHourPaint.descent() + mHourPaint.ascent()) / 2, mHourPaint);
         }
 
         @Override
