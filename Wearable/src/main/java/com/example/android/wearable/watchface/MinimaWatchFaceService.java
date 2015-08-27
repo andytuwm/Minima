@@ -30,8 +30,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -41,7 +39,6 @@ import android.view.WindowInsets;
 
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Minima watch face - combines the classic analog look with the modern digital clock.
@@ -49,12 +46,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class MinimaWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "MinimaWatchFaceService";
-
-    /**
-     * Update rate in milliseconds for interactive mode. We update once a second to advance the
-     * second hand.
-     */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
     private static final Typeface BOLD_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
@@ -67,8 +58,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
-        static final int MSG_UPDATE_TIME = 0;
-
         static final float TWO_PI = (float) Math.PI * 2f;
 
         Paint mHourPaint;
@@ -85,30 +74,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
 
-        Path mAccentPath9 = new Path();
-
-        /**
-         * Handler to update the time once a second in interactive mode.
-         */
-        final Handler mUpdateTimeHandler = new Handler() {
-            @Override
-            public void handleMessage(Message message) {
-                switch (message.what) {
-                    case MSG_UPDATE_TIME:
-                        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, "updating time");
-                        }
-                        invalidate();
-                        if (shouldTimerBeRunning()) {
-                            long timeMs = System.currentTimeMillis();
-                            long delayMs = INTERACTIVE_UPDATE_RATE_MS
-                                    - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
-                            mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
-                        }
-                        break;
-                }
-            }
-        };
+        Path mAccentPath = new Path();
 
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -213,7 +179,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
-            mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }
 
@@ -252,10 +217,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 mTickPaint.setAntiAlias(antiAlias);
             }
             invalidate();
-
-            // Whether the timer should be running depends on whether we're in ambient mode (as well
-            // as whether we're visible), so we may need to start or stop the timer.
-            updateTimer();
         }
 
         @Override
@@ -322,9 +283,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                     float secY = (float) -Math.cos(secRot) * secLength;
                     canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
                 } else if (h == 9) {
-                    mAccentPath9.moveTo(163, 72);
-                    mAccentPath9.cubicTo(180, 74, 200, 82, 204, 125);
-                    canvas.drawPath(mAccentPath9, mSecondPaint);
+                    mAccentPath.moveTo(163, 72);
+                    mAccentPath.cubicTo(180, 74, 200, 82, 204, 125);
+                    canvas.drawPath(mAccentPath, mSecondPaint);
                 }
             }
 
@@ -340,7 +301,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Draw date text
-            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 40, 220, mDayPaint);
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 43, 220, mDayPaint);
 
             // Draw the ticks.
             float innerTickRadius = centerX - 15;
@@ -380,9 +341,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 unregisterReceiver();
             }
 
-            // Whether the timer should be running depends on whether we're visible (as well as
-            // whether we're in ambient mode), so we may need to start or stop the timer.
-            updateTimer();
         }
 
         private void registerReceiver() {
@@ -400,28 +358,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = false;
             MinimaWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
-        }
-
-        /**
-         * Starts the {@link #mUpdateTimeHandler} timer if it should be running and isn't currently
-         * or stops it if it shouldn't be running but currently is.
-         */
-        private void updateTimer() {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "updateTimer");
-            }
-            mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
-            if (shouldTimerBeRunning()) {
-                mUpdateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME);
-            }
-        }
-
-        /**
-         * Returns whether the {@link #mUpdateTimeHandler} timer should be running. The timer should
-         * only run when we're visible and in interactive mode.
-         */
-        private boolean shouldTimerBeRunning() {
-            return isVisible() && !isInAmbientMode();
         }
 
     }

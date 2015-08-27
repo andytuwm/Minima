@@ -16,7 +16,8 @@
 <resources>
     <dimen name="digital_text_size">150dp</dimen>
     <dimen name="digital_text_size_round">175dp</dimen>
-    <dimen name="digital_date_text_size">30dp</dimen>
+    <dimen name="digital_double_text_size_round">150dp</dimen>
+    <dimen name="digital_date_text_size">27dp</dimen>
     <dimen name="digital_am_pm_size">25dp</dimen>
     <dimen name="digital_am_pm_size_round">30dp</dimen>
     <dimen name="hour_x_offset">15dp</dimen>
