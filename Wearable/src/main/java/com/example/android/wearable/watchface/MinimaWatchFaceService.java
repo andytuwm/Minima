@@ -73,6 +73,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
+        boolean isRound;
 
         Path mAccentPath = new Path();
 
@@ -168,7 +169,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             // Load resources that have alternate values for round watches.
             Resources resources = MinimaWatchFaceService.this.getResources();
-            boolean isRound = insets.isRound();
+            isRound = insets.isRound();
 
             float hourTextSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
             float dayTextSize = resources.getDimension(R.dimen.digital_date_text_size);
@@ -262,6 +263,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             int hour = mCalendar.get(Calendar.HOUR);
             if (hour == 0) {
                 hour = 12;
+            }
+            Resources resources = MinimaWatchFaceService.this.getResources();
+            if (hour >= 10) {
+                mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_double_text_size_round: R.dimen.digital_double_text_size));
+            } else {
+                mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_text_size_round: R.dimen.digital_text_size));
             }
             String hourString = String.valueOf(hour);
 
