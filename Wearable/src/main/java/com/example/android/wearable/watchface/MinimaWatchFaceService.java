@@ -129,7 +129,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             mSecondPaint = new Paint();
             mSecondPaint.setARGB(255, 255, 0, 0);
-            mSecondPaint.setStrokeWidth(4.f);
+            mSecondPaint.setStrokeWidth(5.f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
             mSecondPaint.setStyle(Paint.Style.STROKE);
@@ -265,12 +265,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             if (hour == 0) {
                 hour = 12;
             }
-            if (lastHour != hour){
+            if (lastHour != hour) {
                 Resources resources = MinimaWatchFaceService.this.getResources();
                 if (hour >= 10) {
-                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_double_text_size_round: R.dimen.digital_double_text_size));
+                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_double_text_size_round : R.dimen.digital_double_text_size));
                 } else {
-                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_text_size_round: R.dimen.digital_text_size));
+                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size));
                 }
             }
             lastHour = hour;
@@ -286,17 +286,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             // Accent Line
             if (!isInAmbientMode()) {
-                int h = mCalendar.get(Calendar.HOUR);
-                if (h == 7) {
+                if (hour == 7) {
                     float secRot = TWO_PI / 15f;
                     float secLength = centerX - 20;
                     float secX = (float) Math.sin(secRot) * secLength;
                     float secY = (float) -Math.cos(secRot) * secLength;
-                    canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mSecondPaint);
-                } else if (h == 9) {
-                    mAccentPath.moveTo(163, 72);
-                    mAccentPath.cubicTo(180, 74, 200, 82, 204, 125);
-                    canvas.drawPath(mAccentPath, mSecondPaint);
+                    canvas.drawLine(centerX - 17, centerY + 87, centerX + secX - 17, centerY + secY + 87, mSecondPaint);
                 }
             }
 
