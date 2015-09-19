@@ -74,8 +74,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         boolean isRound;
         int lastHour;
-
-        Path mAccentPath = new Path();
+        String[] monthArray = {"jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"};
 
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -295,11 +294,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Draw date text
-            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 43, 220, mDayPaint);
+            canvas.drawText(monthArray[mCalendar.get(Calendar.MONTH)], 43, 220, mDayPaint);
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 70, 250, mDayPaint);
 
             // Draw the ticks.
             float innerTickRadius = centerX - 15;
-            float innerLargeTickRadius = innerTickRadius - 10;
+            float innerLargeTickRadius = innerTickRadius - 5;
             float outerTickRadius = centerX;
             for (int tickIndex = 1; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
