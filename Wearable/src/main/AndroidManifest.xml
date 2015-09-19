@@ -43,7 +43,7 @@
                     android:resource="@drawable/preview_analog" />
             <meta-data
                     android:name="com.google.android.wearable.watchface.preview_circular"
-                    android:resource="@drawable/preview_analog_circular" />
+                    android:resource="@drawable/preview_circular" />
             <meta-data
                     android:name="com.google.android.wearable.watchface.companionConfigurationAction"
                     android:value="com.example.android.wearable.watchface.CONFIG_ANALOG" />
