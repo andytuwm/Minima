@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -283,17 +282,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             canvas.drawArc(0, 0, width, height, startAngle,
                     (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint);
             // angles are in degrees: 6 comes from MIN * (2PI / 60) * (180 / PI)
-
-            // Accent Line
-            if (!isInAmbientMode()) {
-                if (hour == 7) {
-                    float secRot = TWO_PI / 15f;
-                    float secLength = centerX - 20;
-                    float secX = (float) Math.sin(secRot) * secLength;
-                    float secY = (float) -Math.cos(secRot) * secLength;
-                    canvas.drawLine(centerX - 17, centerY + 87, centerX + secX - 17, centerY + secY + 87, mSecondPaint);
-                }
-            }
 
             // Draw minute hand
             if (mCalendar.get(Calendar.MINUTE) != 0) {
