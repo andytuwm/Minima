@@ -41,13 +41,12 @@ import java.util.TimeZone;
 
 /**
  * Minima watch face - combines the classic analog look with the modern digital clock.
- * <p/>
  */
 public class MinimaWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "MinimaWatchFaceService";
 
     private static final Typeface BOLD_TYPEFACE =
-            Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+            Typeface.create("sans-serif-condensed", Typeface.NORMAL);
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create("sans-serif-thin", Typeface.NORMAL);
 
@@ -66,12 +65,14 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         Paint mLargeTickPaint;
         Paint mFadePaint;
         Paint mDayPaint;
+        Paint mMonthPaint;
         boolean mMute;
         Calendar mCalendar;
 
         float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
+        int mMonthDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         boolean isRound;
         int lastHour;
         String[] monthArray = {"jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"};
@@ -118,6 +119,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setLetterSpacing(-0.15f);
 
             mDayPaint = createTextPaint(mDayDigitsColor, NORMAL_TYPEFACE);
+            mMonthPaint = createTextPaint(mMonthDigitsColor, BOLD_TYPEFACE);
 
             mMinutePaint = new Paint();
             mMinutePaint.setARGB(255, 200, 200, 200);
@@ -172,9 +174,11 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
 
             float hourTextSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
             float dayTextSize = resources.getDimension(R.dimen.digital_date_text_size);
+            float monthTextSize = resources.getDimension(R.dimen.digital_month_text_size);
 
             mHourPaint.setTextSize(hourTextSize);
             mDayPaint.setTextSize(dayTextSize);
+            mMonthPaint.setTextSize(monthTextSize);
         }
 
         @Override
@@ -293,9 +297,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 canvas.drawCircle(centerX, centerY, 7, mMinutePaint);
             }
 
-            // Draw date text
-            canvas.drawText(monthArray[mCalendar.get(Calendar.MONTH)], 43, 220, mDayPaint);
-            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 70, 250, mDayPaint);
+            // Draw month & date text
+            canvas.drawText(monthArray[mCalendar.get(Calendar.MONTH)], 50, 240, mMonthPaint);
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 75, 270, mDayPaint);
 
             // Draw the ticks.
             float innerTickRadius = centerX - 15;
