@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.example.android.wearable.watchface" >
+        package="com.example.android.wearable.minima" >
 
     <uses-sdk android:minSdkVersion="18"
               android:targetSdkVersion="21" />
@@ -26,7 +26,7 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <!-- All intent-filters for config actions must include the categories
-        com.google.android.wearable.watchface.category.COMPANION_CONFIGURATION and
+        com.google.android.wearable.minima.category.COMPANION_CONFIGURATION and
         android.intent.category.DEFAULT. -->
     <application
             android:allowBackup="true"
@@ -38,9 +38,9 @@
                 android:name=".AnalogAndCardBoundsWatchFaceConfigActivity"
                 android:label="@string/app_name">
             <intent-filter>
-                <action android:name="com.example.android.wearable.watchface.CONFIG_ANALOG" />
-                <action android:name="com.example.android.wearable.watchface.CONFIG_CARD_BOUNDS" />
-                <category android:name="com.google.android.wearable.watchface.category.COMPANION_CONFIGURATION" />
+                <action android:name="com.example.android.wearable.minima.CONFIG_ANALOG" />
+                <action android:name="com.example.android.wearable.minima.CONFIG_CARD_BOUNDS" />
+                <category android:name="com.google.android.wearable.minims.category.COMPANION_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

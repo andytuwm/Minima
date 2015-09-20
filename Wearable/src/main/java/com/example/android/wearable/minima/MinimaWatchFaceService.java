@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.minima;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

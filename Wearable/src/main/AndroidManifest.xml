@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.example.android.wearable.watchface" >
+        package="com.example.android.wearable.minima" >
 
     <uses-sdk android:minSdkVersion="21"
         android:targetSdkVersion="21" />
@@ -39,17 +39,17 @@
                     android:name="android.service.wallpaper"
                     android:resource="@xml/watch_face" />
             <meta-data
-                    android:name="com.google.android.wearable.watchface.preview"
+                    android:name="com.google.android.wearable.minima.preview"
                     android:resource="@drawable/preview_analog" />
             <meta-data
-                    android:name="com.google.android.wearable.watchface.preview_circular"
+                    android:name="com.google.android.wearable.minima.preview_circular"
                     android:resource="@drawable/preview_circular" />
             <meta-data
-                    android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                    android:value="com.example.android.wearable.watchface.CONFIG_ANALOG" />
+                    android:name="com.google.android.wearable.minima.companionConfigurationAction"
+                    android:value="com.example.android.wearable.minima.CONFIG_ANALOG" />
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name="com.google.android.wearable.minima.category.WATCH_FACE" />
             </intent-filter>
         </service>
 

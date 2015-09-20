@@ -1,4 +1,4 @@
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.minima;
 
 import android.graphics.Color;
 
