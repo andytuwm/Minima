@@ -1,5 +1,6 @@
 .gradle
 .idea
 build
+gradle-wrapper.properties
 local.properties
-Minima.iml
+*.iml
