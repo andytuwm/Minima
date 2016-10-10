@@ -44,7 +44,6 @@ import java.util.TimeZone;
  */
 public class MinimaWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "MinimaWatchFaceService";
-
     private static final Typeface BOLD_TYPEFACE =
             Typeface.create("sans-serif-condensed", Typeface.NORMAL);
     private static final Typeface NORMAL_TYPEFACE =
@@ -58,14 +57,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
     private class Engine extends CanvasWatchFaceService.Engine {
         static final float TWO_PI = (float) Math.PI * 2f;
 
-        Paint mHourPaint;
-        Paint mMinutePaint;
-        Paint mSecondPaint;
-        Paint mTickPaint;
-        Paint mLargeTickPaint;
-        Paint mFadePaint;
-        Paint mDayPaint;
-        Paint mMonthPaint;
+        Paint mHourPaint, mDoubleHourPaint, mMinutePaint;
+        Paint mTickPaint, mLargeTickPaint, mFadePaint;
+        Paint mDayPaint, mDayOfWeekPaint;
         boolean mMute;
         Calendar mCalendar;
 
@@ -75,7 +69,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         int mMonthDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         boolean isRound;
         int lastHour;
-        String[] monthArray = {"jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"};
+        String[] dayArray = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
 
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -92,8 +86,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
          */
         boolean mLowBitAmbient;
 
-        Bitmap mBackgroundBitmap;
-        Bitmap mBackgroundScaledBitmap;
+        Bitmap mBackgroundBitmap, mBackgroundScaledBitmap;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -117,22 +110,16 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mHourPaint = createTextPaint(mHourDigitsColor, NORMAL_TYPEFACE);
             mHourPaint.setTextAlign(Paint.Align.CENTER);
             mHourPaint.setLetterSpacing(-0.15f);
+            mDoubleHourPaint = new Paint(mHourPaint);
 
             mDayPaint = createTextPaint(mDayDigitsColor, NORMAL_TYPEFACE);
-            mMonthPaint = createTextPaint(mMonthDigitsColor, BOLD_TYPEFACE);
+            mDayOfWeekPaint = createTextPaint(mMonthDigitsColor, BOLD_TYPEFACE);
 
             mMinutePaint = new Paint();
             mMinutePaint.setARGB(255, 200, 200, 200);
             mMinutePaint.setStrokeWidth(6f);
             mMinutePaint.setAntiAlias(true);
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
-
-            mSecondPaint = new Paint();
-            mSecondPaint.setARGB(255, 255, 0, 0);
-            mSecondPaint.setStrokeWidth(5.f);
-            mSecondPaint.setAntiAlias(true);
-            mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
-            mSecondPaint.setStyle(Paint.Style.STROKE);
 
             mTickPaint = new Paint();
             mTickPaint.setARGB(100, 255, 255, 255);
@@ -173,12 +160,14 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             isRound = insets.isRound();
 
             float hourTextSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
+            float doubleHourTextSize = resources.getDimension(isRound ? R.dimen.digital_double_text_size_round : R.dimen.digital_double_text_size);
             float dayTextSize = resources.getDimension(R.dimen.digital_date_text_size);
-            float monthTextSize = resources.getDimension(R.dimen.digital_month_text_size);
+            float monthTextSize = resources.getDimension(R.dimen.digital_day_of_week_text_size);
 
             mHourPaint.setTextSize(hourTextSize);
+            mDoubleHourPaint.setTextSize(doubleHourTextSize);
             mDayPaint.setTextSize(dayTextSize);
-            mMonthPaint.setTextSize(monthTextSize);
+            mDayOfWeekPaint.setTextSize(monthTextSize);
         }
 
         @Override
@@ -217,7 +206,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 boolean antiAlias = !inAmbientMode;
                 mHourPaint.setAntiAlias(antiAlias);
                 mMinutePaint.setAntiAlias(antiAlias);
-                mSecondPaint.setAntiAlias(antiAlias);
                 mTickPaint.setAntiAlias(antiAlias);
             }
             invalidate();
@@ -231,7 +219,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 mMute = inMuteMode;
                 mHourPaint.setAlpha(inMuteMode ? 100 : 255);
                 mMinutePaint.setAlpha(inMuteMode ? 100 : 255);
-                mSecondPaint.setAlpha(inMuteMode ? 80 : 255);
                 invalidate();
             }
         }
@@ -250,6 +237,8 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             mCalendar.setTimeInMillis(System.currentTimeMillis());
+            int currentHour = mCalendar.get(Calendar.HOUR);
+            int currentMin = mCalendar.get(Calendar.MINUTE);
 
             int width = bounds.width();
             int height = bounds.height();
@@ -257,29 +246,21 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             // Draw the background, scaled to fit.
             canvas.drawBitmap(mBackgroundScaledBitmap, 0, 0, null);
 
-            // Find the center. Ignore the window insets so that, on round watches with a
-            // "chin", the watch face is centered on the entire screen, not just the usable
-            // portion.
+            // Find the center. Ignore the window insets so that, on round watches with a "chin",
+            // the watch face is centered on the entire screen, not just the usable portion.
             float centerX = width / 2f;
             float centerY = height / 2f;
 
-            int hour = mCalendar.get(Calendar.HOUR);
-            if (hour == 0) {
-                hour = 12;
-            }
-            if (lastHour != hour) {
-                Resources resources = MinimaWatchFaceService.this.getResources();
-                if (hour >= 10) {
-                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_double_text_size_round : R.dimen.digital_double_text_size));
-                } else {
-                    mHourPaint.setTextSize(resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size));
-                }
-            }
-            lastHour = hour;
-            String hourString = String.valueOf(hour);
+            // If time is 12 AM, show on screen as 12.
+            currentHour = (currentHour == 0) ? 12 : currentHour;
+            Paint currentHourPaint = mHourPaint;
+            // Check last hour to prevent resources getting set every second.
+            // Change time text size depending if it's single or double digit.
+            if (lastHour != currentHour && currentHour >= 10) currentHourPaint = mDoubleHourPaint;
+            lastHour = currentHour;
 
             // Draw hour text
-            canvas.drawText(hourString, centerX, centerY - (mHourPaint.descent() + mHourPaint.ascent()) / 2, mHourPaint);
+            canvas.drawText(String.valueOf(currentHour), centerX, centerY - (currentHourPaint.descent() + currentHourPaint.ascent()) / 2, currentHourPaint);
 
             // Draw overlay
             canvas.drawArc(0, 0, width, height, startAngle,
@@ -287,9 +268,8 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             // angles are in degrees: 6 comes from MIN * (2PI / 60) * (180 / PI)
 
             // Draw minute hand
-            if (mCalendar.get(Calendar.MINUTE) != 0) {
-                float minutes = mCalendar.get(Calendar.MINUTE);
-                float minRot = minutes / 60f * TWO_PI;
+            if (currentMin != 0) {
+                float minRot = currentMin / 60f * TWO_PI;
                 float minLength = centerX - 5; // full length
                 float minX = (float) Math.sin(minRot) * minLength;
                 float minY = (float) -Math.cos(minRot) * minLength;
@@ -297,14 +277,14 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 canvas.drawCircle(centerX, centerY, 7, mMinutePaint);
             }
 
-            // Draw month & date text
-            canvas.drawText(monthArray[mCalendar.get(Calendar.MONTH)], 50, 240, mMonthPaint);
-            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 75, 270, mDayPaint);
+            // Draw day of week text
+            canvas.drawText(dayArray[mCalendar.get(Calendar.DAY_OF_WEEK) - 1], 40, 210, mDayOfWeekPaint);
+            // Draw date text
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 72, 240, mDayPaint);
 
-            // Draw the ticks.
+            // Draw minute ticks.
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 5;
-            float outerTickRadius = centerX;
             for (int tickIndex = 1; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
                 float tickRadius = innerTickRadius;
@@ -316,8 +296,8 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
                 }
                 float innerX = (float) Math.sin(tickRot) * tickRadius;
                 float innerY = (float) -Math.cos(tickRot) * tickRadius;
-                float outerX = (float) Math.sin(tickRot) * outerTickRadius;
-                float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
+                float outerX = (float) Math.sin(tickRot) * centerX;
+                float outerY = (float) -Math.cos(tickRot) * centerX;
                 canvas.drawLine(centerX + innerX, centerY + innerY,
                         centerX + outerX, centerY + outerY, tickPaint);
             }
@@ -329,10 +309,8 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onVisibilityChanged: " + visible);
             }
-
             if (visible) {
                 registerReceiver();
-
                 // Update time zone in case it changed while we weren't visible.
                 mCalendar.setTimeZone(TimeZone.getDefault());
             } else {
