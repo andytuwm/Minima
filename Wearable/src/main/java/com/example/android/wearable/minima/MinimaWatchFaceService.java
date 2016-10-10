@@ -66,7 +66,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
-        int mMonthDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
+        int mDayOfWeekDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         boolean isRound;
         int lastHour;
         String[] dayArray = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
@@ -105,15 +105,15 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             Drawable backgroundDrawable = resources.getDrawable(R.drawable.bg, null /* theme */);
             mBackgroundBitmap = ((BitmapDrawable) backgroundDrawable).getBitmap();
 
-            startAngle = 270;
+            startAngle = 270; // fade paint fill starts from 12 o'clock position.
 
-            mHourPaint = createTextPaint(mHourDigitsColor, NORMAL_TYPEFACE);
+            mHourPaint = MinimaWatchFaceUtil.createTextPaint(mHourDigitsColor, NORMAL_TYPEFACE);
             mHourPaint.setTextAlign(Paint.Align.CENTER);
             mHourPaint.setLetterSpacing(-0.15f);
             mDoubleHourPaint = new Paint(mHourPaint);
 
-            mDayPaint = createTextPaint(mDayDigitsColor, NORMAL_TYPEFACE);
-            mDayOfWeekPaint = createTextPaint(mMonthDigitsColor, BOLD_TYPEFACE);
+            mDayPaint = MinimaWatchFaceUtil.createTextPaint(mDayDigitsColor, NORMAL_TYPEFACE);
+            mDayOfWeekPaint = MinimaWatchFaceUtil.createTextPaint(mDayOfWeekDigitsColor, BOLD_TYPEFACE);
 
             mMinutePaint = new Paint();
             mMinutePaint.setARGB(255, 200, 200, 200);
@@ -126,10 +126,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mTickPaint.setStrokeWidth(2.f);
             mTickPaint.setAntiAlias(true);
 
-            mLargeTickPaint = new Paint();
+            mLargeTickPaint = new Paint(mTickPaint);
             mLargeTickPaint.setARGB(170, 255, 255, 255);
             mLargeTickPaint.setStrokeWidth(3f);
-            mLargeTickPaint.setAntiAlias(true);
 
             mFadePaint = new Paint();
             mFadePaint.setARGB(180, 0, 0, 0);
@@ -138,14 +137,6 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mFadePaint.setStyle(Paint.Style.FILL);
 
             mCalendar = Calendar.getInstance();
-        }
-
-        private Paint createTextPaint(int color, Typeface typeface) {
-            Paint paint = new Paint();
-            paint.setColor(color);
-            paint.setTypeface(typeface);
-            paint.setAntiAlias(true);
-            return paint;
         }
 
         @Override
