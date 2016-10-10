@@ -16,7 +16,7 @@
 <resources>
     <dimen name="digital_text_size">150dp</dimen>
     <dimen name="digital_text_size_round">170dp</dimen>
-    <dimen name="digital_double_text_size_round">155dp</dimen>
+    <dimen name="digital_double_text_size_round">150dp</dimen>
     <dimen name="digital_double_text_size">150dp</dimen>
     <dimen name="digital_day_of_week_text_size">23dp</dimen>
     <dimen name="digital_date_text_size">20dp</dimen>

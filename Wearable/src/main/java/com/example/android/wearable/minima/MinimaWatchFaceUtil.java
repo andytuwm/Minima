@@ -12,8 +12,10 @@ final class MinimaWatchFaceUtil {
     private static final String TAG = "MinimaWatchFaceUtil";
 
     private static final String COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS = "White";
+    private static final String COLOR_NAME_BLACK_BACKGROUND = "Black";
     static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS =
             parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS);
+    static final int COLOR_VALUE_BLACK_BACKGROUND = parseColor(COLOR_NAME_BLACK_BACKGROUND);
 
     private static int parseColor(String colorName) {
         return Color.parseColor(colorName.toLowerCase());

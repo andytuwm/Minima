@@ -60,14 +60,15 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
         Paint mHourPaint, mDoubleHourPaint, mMinutePaint;
         Paint mTickPaint, mLargeTickPaint, mFadePaint;
         Paint mDayPaint, mDayOfWeekPaint;
-        boolean mMute;
+        Paint mBlackBackgroundPaint;
+        boolean mMute, isRound, isInAmbient;
         Calendar mCalendar;
 
         float startAngle;
         int mHourDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mDayOfWeekDigitsColor = MinimaWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
-        boolean isRound;
+        int mBlackBackgroundColor = MinimaWatchFaceUtil.COLOR_VALUE_BLACK_BACKGROUND;
         int lastHour;
         String[] dayArray = {"sun", "mon", "tue", "wed", "thu", "fri", "sat"};
 
@@ -136,6 +137,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             mFadePaint.setAntiAlias(true);
             mFadePaint.setStyle(Paint.Style.FILL);
 
+            mBlackBackgroundPaint = new Paint();
+            mBlackBackgroundPaint.setColor(mBlackBackgroundColor);
+
             mCalendar = Calendar.getInstance();
         }
 
@@ -190,12 +194,13 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
             }
-
+            isInAmbient = inAmbientMode;
             mHourPaint.setAlpha(inAmbientMode ? 185 : 255);
 
             if (mLowBitAmbient) {
                 boolean antiAlias = !inAmbientMode;
                 mHourPaint.setAntiAlias(antiAlias);
+                mDoubleHourPaint.setAntiAlias(antiAlias);
                 mMinutePaint.setAntiAlias(antiAlias);
                 mTickPaint.setAntiAlias(antiAlias);
             }
@@ -209,6 +214,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
                 mHourPaint.setAlpha(inMuteMode ? 100 : 255);
+                mDoubleHourPaint.setAlpha(inMuteMode ? 100 : 255);
                 mMinutePaint.setAlpha(inMuteMode ? 100 : 255);
                 invalidate();
             }
@@ -234,8 +240,9 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             int width = bounds.width();
             int height = bounds.height();
 
-            // Draw the background, scaled to fit.
-            canvas.drawBitmap(mBackgroundScaledBitmap, 0, 0, null);
+            // Draw the background, scaled to fit. If in ambient mode, draw black background.
+            if (isInAmbient) canvas.drawRect(0, 0, width, height, mBlackBackgroundPaint);
+            else canvas.drawBitmap(mBackgroundScaledBitmap, 0, 0, null);
 
             // Find the center. Ignore the window insets so that, on round watches with a "chin",
             // the watch face is centered on the entire screen, not just the usable portion.
@@ -254,8 +261,7 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText(String.valueOf(currentHour), centerX, centerY - (currentHourPaint.descent() + currentHourPaint.ascent()) / 2, currentHourPaint);
 
             // Draw overlay
-            canvas.drawArc(0, 0, width, height, startAngle,
-                    (mCalendar.get(Calendar.MINUTE) * 6), true, mFadePaint);
+            canvas.drawArc(0, 0, width, height, startAngle, (currentMin * 6), true, mFadePaint);
             // angles are in degrees: 6 comes from MIN * (2PI / 60) * (180 / PI)
 
             // Draw minute hand
@@ -271,12 +277,12 @@ public class MinimaWatchFaceService extends CanvasWatchFaceService {
             // Draw day of week text
             canvas.drawText(dayArray[mCalendar.get(Calendar.DAY_OF_WEEK) - 1], 40, 210, mDayOfWeekPaint);
             // Draw date text
-            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 72, 240, mDayPaint);
+            canvas.drawText(String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH)), 70, 240, mDayPaint);
 
             // Draw minute ticks.
             float innerTickRadius = centerX - 15;
             float innerLargeTickRadius = innerTickRadius - 5;
-            for (int tickIndex = 1; tickIndex < mCalendar.get(Calendar.MINUTE); tickIndex++) {
+            for (int tickIndex = 1; tickIndex < currentMin; tickIndex++) {
                 float tickRot = tickIndex * TWO_PI / 60;
                 float tickRadius = innerTickRadius;
                 Paint tickPaint = mTickPaint;
