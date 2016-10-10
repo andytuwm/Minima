@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 <resources>
-    <string name="app_name">WatchFace</string>
+    <string name="app_name">Minima</string>
     <string name="analog_name">Minima</string>
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
