@@ -11,11 +11,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-
-
 dependencies {
-
-
 
     compile 'com.google.android.gms:play-services-wearable:9.6.1'
     compile 'com.android.support:support-v13:24.2.1'
